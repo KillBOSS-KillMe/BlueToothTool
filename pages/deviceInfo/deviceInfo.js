@@ -23,6 +23,10 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    this.setData({
+      deviceDataNode: app.globalData.deviceDataNode
+    })
+    
     var that = this;
     var devid = decodeURIComponent(options.deviceId);
     var devname = decodeURIComponent(options.name);

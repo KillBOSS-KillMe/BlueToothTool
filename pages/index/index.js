@@ -220,6 +220,7 @@ Page({
     //     // wx.stopBluetoothDevicesDiscovery()
     //   },
     // })
+    // wx.startBeaconDiscovery({
     wx.startBluetoothDevicesDiscovery({
       // wx.startBeaconDiscovery({
       // services: [],
