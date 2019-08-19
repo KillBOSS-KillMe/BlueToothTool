@@ -28,6 +28,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function(options) {
+    console.log('000000')
     var that = this;
     console.log("用户信息", app.globalData.userInfo);
 
@@ -359,31 +360,32 @@ Page({
       success: function(res) {
         console.log(`==========获取的service信息==========`)
         console.log(res)
-        if (res.services.length > 0) {
-          let deviceDataNode = {}
-          deviceDataNode['name'] = encodeURIComponent(that.data.name)
-          deviceDataNode['deviceId'] = encodeURIComponent(devId)
-          deviceDataNode['allData'] = res.services
-          app.globalData.deviceDataNode = deviceDataNode
-          wx.navigateTo({
-            url: '/pages/deviceInfo/deviceInfo'
-          });
-        } else {
-          app.showModal1("无可用service");
-        }
-        // for (let i = 0; i < res.services.length; i++) {
-        //   if (res.services[i].isPrimary) { //该服务是否为主服务
-        //     var s = res.services[i].uuid;
-        //     var log = that.data.textLog + "该服务是为主服务:" + res.services[i].uuid + "\n";
-        //     that.setData({
-        //       textLog: log
-        //     });
-        //     wx.navigateTo({
-        //       url: '/pages/functionPage/functionPage?name=' + encodeURIComponent(that.data.name) + '&deviceId=' + encodeURIComponent(devId) + '&serviceId=' + encodeURIComponent(res.services[i].uuid)
-        //     });
-        //     return
-        //   }
+        // if (res.services.length > 0) {
+        //   let deviceDataNode = {}
+        //   deviceDataNode['name'] = encodeURIComponent(that.data.name)
+        //   deviceDataNode['deviceId'] = encodeURIComponent(devId)
+        //   deviceDataNode['allData'] = res.services
+        //   app.globalData.deviceDataNode = deviceDataNode
+        //   wx.navigateTo({
+        //     url: '/pages/deviceInfo/deviceInfo'
+        //   });
+        // } else {
+        //   app.showModal1("无可用service");
         // }
+        for (let i = 0; i < res.services.length; i++) {
+          if (res.services[i].isPrimary) { //该服务是否为主服务
+            var s = res.services[i].uuid;
+            var log = that.data.textLog + "该服务是为主服务:" + res.services[i].uuid + "\n";
+            that.setData({
+              textLog: log
+            });
+            wx.navigateTo({
+              url: '/pages/deviceInfo/deviceInfo?name=' + encodeURIComponent(that.data.name) + '&deviceId=' + encodeURIComponent(devId) + '&serviceId=' + encodeURIComponent(res.services[i].uuid)
+              // url: '/pages/functionPage/functionPage?name=' + encodeURIComponent(that.data.name) + '&deviceId=' + encodeURIComponent(devId) + '&serviceId=' + encodeURIComponent(res.services[i].uuid)
+            });
+            return
+          }
+        }
       }
     })
   }

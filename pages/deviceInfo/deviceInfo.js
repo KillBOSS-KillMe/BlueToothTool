@@ -7,12 +7,12 @@ Page({
    * 页面的初始数据
    */
   data: {
-    textLog: "",
+    textLog:"",
     deviceId: "",
     name: "",
-    allRes: "",
-    serviceId: "",
-    readCharacteristicId: "",
+    allRes:"",
+    serviceId:"",
+    readCharacteristicId:"",
     writeCharacteristicId: "",
     notifyCharacteristicId: "",
     connected: true,
@@ -23,20 +23,16 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    this.setData({
-      deviceDataNode: app.globalData.deviceDataNode
-    })
-    
     var that = this;
     var devid = decodeURIComponent(options.deviceId);
     var devname = decodeURIComponent(options.name);
     var devserviceid = decodeURIComponent(options.serviceId);
-    var log = that.data.textLog + "设备名=" + devname + "\n设备UUID=" + devid + "\n服务UUID=" + devserviceid + "\n";
+    var log = that.data.textLog + "设备名=" + devname +"\n设备UUID="+devid+"\n服务UUID="+devserviceid+ "\n";
     this.setData({
       textLog: log,
       deviceId: devid,
       name: devname,
-      serviceId: devserviceid
+      serviceId: devserviceid 
     });
     //获取特征值
     that.getBLEDeviceCharacteristics();
@@ -60,7 +56,7 @@ Page({
    * 生命周期函数--监听页面隐藏
    */
   onHide: function () {
-
+    
   },
 
   //清空log日志
@@ -71,7 +67,7 @@ Page({
     });
   },
   //返回蓝牙是否正处于链接状态
-  onBLEConnectionStateChange: function (onFailCallback) {
+  onBLEConnectionStateChange:function (onFailCallback) {
     wx.onBLEConnectionStateChange(function (res) {
       // 该方法回调中可以用于处理连接意外断开等异常情况
       console.log(`device ${res.deviceId} state has changed, connected: ${res.connected}`);
@@ -97,12 +93,14 @@ Page({
     }, 2000)
   },
   //获取蓝牙设备某个服务中的所有 characteristic（特征值）
-  getBLEDeviceCharacteristics: function (order) {
+  getBLEDeviceCharacteristics: function (order){
     var that = this;
+    console.log('特征值读取-----------------------------------')
     wx.getBLEDeviceCharacteristics({
       deviceId: that.data.deviceId,
       serviceId: that.data.serviceId,
       success: function (res) {
+        console.log(res)
         for (let i = 0; i < res.characteristics.length; i++) {
           let item = res.characteristics[i]
           if (item.properties.read) {//该特征值是否支持 read 操作
@@ -117,9 +115,9 @@ Page({
             that.setData({
               textLog: log,
               writeCharacteristicId: item.uuid,
-              canWrite: true
+              canWrite:true
             });
-
+            
           }
           if (item.properties.notify || item.properties.indicate) {//该特征值是否支持 notify或indicate 操作
             var log = that.data.textLog + "该特征值支持 notify 操作:" + item.uuid + "\n";
@@ -138,7 +136,7 @@ Page({
   },
   //启用低功耗蓝牙设备特征值变化时的 notify 功能，订阅特征值。
   //注意：必须设备的特征值支持notify或者indicate才可以成功调用，具体参照 characteristic 的 properties 属性
-  notifyBLECharacteristicValueChange: function () {
+  notifyBLECharacteristicValueChange: function (){
     var that = this;
     wx.notifyBLECharacteristicValueChange({
       state: true, // 启用 notify 功能
@@ -146,8 +144,8 @@ Page({
       serviceId: that.data.serviceId,
       characteristicId: that.data.notifyCharacteristicId,
       success: function (res) {
-        var log = that.data.textLog + "notify启动成功" + res.errMsg + "\n";
-        that.setData({
+        var log = that.data.textLog + "notify启动成功" + res.errMsg+"\n";
+        that.setData({ 
           textLog: log,
         });
         that.onBLECharacteristicValueChange();   //监听特征值变化
@@ -166,39 +164,88 @@ Page({
 
   },
   //监听低功耗蓝牙设备的特征值变化。必须先启用notify接口才能接收到设备推送的notification。
-  onBLECharacteristicValueChange: function () {
+  onBLECharacteristicValueChange:function(){
     var that = this;
     wx.onBLECharacteristicValueChange(function (res) {
+      console.log('-------------22222监听特征值变化22222---------------')
+      console.log(res)
       var resValue = utils.ab2hext(res.value); //16进制字符串
-      var resValueStr = utils.hexToString(resValue);
-
-      var log0 = that.data.textLog + "成功获取：" + resValueStr + "\n";
-      that.setData({
-        textLog: log0,
-      });
+      console.log(`res.value==>>ab2hext转16进制==>>${resValue}`)
+      // var resValueStr = utils.hexToString(resValue);
+      // console.log(`res.value==>>ab2hext转16进制==>>hexToString转字符串==>>${resValueStr}`)
+  
+      // var log0 = that.data.textLog + "成功获取：" + resValueStr + "\n";
+      wx.readBLECharacteristicValue({
+        // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
+        deviceId: that.data.deviceId,
+        // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
+        serviceId: that.data.serviceId,
+        // 这里的 characteristicId 需要在 getBLEDeviceCharacteristics 接口中获取
+        characteristicId: that.data.notifyCharacteristicId,
+        success (res) {
+          console.log('-------------11111监听特征值变化11111---------------')
+          console.log('readBLECharacteristicValue:', res)
+          console.log(utils.ab2hext(res.value))
+        }
+      })
+      // let _proto_ = res.__proto__
+      // console.log(`_proto_====>>>>$`)
+      // console.log(_proto_)
+      // console.log(`__defineGetter__======>>>>>${_proto_.__defineGetter__}`)
+      // console.log(_proto_.__defineGetter__)
+      // console.log(`__defineSetter__======>>>>>${_proto_.__defineSetter__}`)
+      // console.log(_proto_.__defineSetter__)
+      // console.log(`__lookupGetter__======>>>>>${_proto_.__lookupGetter__}`)
+      // console.log(_proto_.__lookupGetter__)
+      // console.log(`__lookupSetter__======>>>>>${_proto_.__lookupSetter__}`)
+      // console.log(_proto_.__lookupSetter__)
+      // console.log(`constructor======>>>>>${_proto_.constructor}`)
+      // console.log(_proto_.constructor)
+      // console.log(`hasOwnProperty======>>>>>${_proto_.hasOwnProperty}`)
+      // console.log(_proto_.hasOwnProperty)
+      // console.log(`isProtoTypeOf======>>>>>${_proto_.isProtoTypeOf}`)
+      // console.log(_proto_.isProtoTypeOf)
+      // console.log(`nv_constructor======>>>>>${_proto_.nv_constructor}`)
+      // console.log(_proto_.nv_constructor)
+      // console.log(`nv_toString======>>>>>${_proto_.nv_toString}`)
+      // console.log(_proto_.nv_toString)
+      // console.log(`propertyleEnumerable======>>>>>${_proto_.propertyleEnumerable}`)
+      // console.log(_proto_.propertyleEnumerable)
+      // console.log(`toLocaleString======>>>>>${_proto_.toLocaleString}`)
+      // console.log(_proto_.toLocaleString)
+      // console.log(`toString======>>>>>${_proto_.toString}`)
+      // console.log(_proto_.toString)
+      // console.log(`valueOf======>>>>>${_proto_.valueOf}`)
+      // console.log(_proto_.valueOf)
+      // that.setData({
+      //   textLog: log0,
+      // });
 
     });
   },
   //orderInput
-  orderInput: function (e) {
+  orderInput:function(e){
     this.setData({
       orderInputStr: e.detail.value
     })
   },
 
   //发送指令
-  sentOrder: function () {
-    var that = this;
+  sentOrder:function(){
+    var that = this; 
     var orderStr = that.data.orderInputStr;//指令
+    console.log(`获取指令==>>${orderStr}`)
     let order = utils.stringToBytes(orderStr);
+    console.log(`指令==>>${orderStr}字符串转byte==>>${order}`)
     that.writeBLECharacteristicValue(order);
   },
 
   //向低功耗蓝牙设备特征值中写入二进制数据。
   //注意：必须设备的特征值支持write才可以成功调用，具体参照 characteristic 的 properties 属性
-  writeBLECharacteristicValue: function (order) {
+  writeBLECharacteristicValue: function (order){
     var that = this;
     let byteLength = order.byteLength;
+    console.log(`执行指令的字节长度==>>${byteLength}`)
     var log = that.data.textLog + "当前执行指令的字节长度:" + byteLength + "\n";
     that.setData({
       textLog: log,
@@ -211,12 +258,12 @@ Page({
       // 这里的value是ArrayBuffer类型
       value: order.slice(0, 20),
       success: function (res) {
-        console.log('========================')
+        console.log('============特征值中写入反馈结果============')
         console.log(res)
         if (byteLength > 20) {
-          setTimeout(function () {
+          setTimeout(function(){
             // that.writeBLECharacteristicValue(order.slice(20, byteLength));
-          }, 150);
+          },150);
         }
         var log = that.data.textLog + "写入成功：" + res.errMsg + "\n";
         that.setData({
@@ -227,12 +274,12 @@ Page({
       fail: function (res) {
         console.log('========================')
         console.log(res)
-        var log = that.data.textLog + "写入失败" + res.errMsg + "\n";
+        var log = that.data.textLog + "写入失败" + res.errMsg+"\n";
         that.setData({
           textLog: log,
         });
       }
-
+      
     })
   },
 

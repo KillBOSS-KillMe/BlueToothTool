@@ -4,6 +4,7 @@
   <view>当前连接的蓝牙设备是：</view>
   <view>设备名：{{name}}</view>
   <view>设备ID：{{deviceId}}</view>
+  <button bindtap='onBLECharacteristicValueChange'>数据获取</button>
 </view>
 
 <view class='card'>

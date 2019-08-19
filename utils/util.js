@@ -11,13 +11,29 @@ function stringToBytes(str) {
 
 // ArrayBuffer转16进制字符串示例
 function ab2hext(buffer) {
-  var hexArr = Array.prototype.map.call(
-    new Uint8Array(buffer),
-    function (bit) {
-      return ('00' + bit.toString(16)).slice(-2)
-    }
-  )
-  return hexArr.join('');
+  // let bufferType = Object.prototype.toString.call(buffer)
+  if (buffer != '[object ArrayBuffer]') {
+    return
+  }
+  let dataView = new DataView(buffer)
+
+  var hexStr = '';
+  for (var i = 0; i < dataView.byteLength; i++) {
+    var str = dataView.getUint8(i);
+    var hex = (str & 0xff).toString(16);
+    hex = (hex.length === 1) ? '0' + hex : hex;
+    hexStr += hex;
+  }
+  console.log(hexStr)
+  return hexStr.toUpperCase();
+  // var hexArr = Array.prototype.map.call(
+  //   new Uint8Array(buffer),
+  //   function (bit) {
+  //     return ('00' + bit.toString(16)).slice(-2)
+  //   }
+  // )
+  // console.log(hexArr)
+  // return hexArr.join('');
 }
 
 //16进制转字符串
