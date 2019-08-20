@@ -191,119 +191,85 @@ Page({
       // FF00FF00FF00FF0000040500000401020304050001000100100001020304050002
       // 00030800000102030405000300020430000102030405000400000C2000
 
-      type值对应==>>GET,PUT,ADD  三种类别的请求方式
-      00 (type)[8] OPT_ID_GET_SEQ==>>GET方式，数据获取
-      01 (type)[8] OPT_ID_PUT_SEQ==>>PUT方式，数据修改
-      02 (type)[8] OPT_ID_ADD_DATA==>>ADD方式，数据新增
+      // type值对应==>>GET,PUT,ADD  三种类别的请求方式
+      // 00 (type)[8] OPT_ID_GET_SEQ==>>GET方式，数据获取
+      // 01 (type)[8] OPT_ID_PUT_SEQ==>>PUT方式，数据修改
+      // 02 (type)[8] OPT_ID_ADD_DATA==>>ADD方式，数据新增
 
-      问题1：00 (isCurExist、isCurA、isCurB、isCurAll)[7] 值的下发，文档中给值不明确
-      解决方法：把两位数（00）转译成二进制数，理想状态为4位    位数不足的情况下在前面补上0
-      问题2：01 00 (a组顺序)[8][9]
-            00 10 (b组顺序)[9][10]
-            10 00 (全体组顺)[10][11]
-            三组顺序的生成方式
-      解决方法：排序通过seq数据存在的顺序，a组顺序，b组顺序，全体组顺表示是否存在于a组，b组。全体组都包含
-            （可能存在于a组，也可能存在于b组，可能a组b组都存在）
+      // 问题1：00 (isCurExist、isCurA、isCurB、isCurAll)[7] 值的下发，文档中给值不明确
+      // 解决方法：把两位数（00）转译成二进制数，理想状态为4位    位数不足的情况下在前面补上0
+      // 问题2：01 00 (a组顺序)[8][9]
+      //       00 10 (b组顺序)[9][10]
+      //       10 00 (全体组顺)[10][11]
+      //       三组顺序的生成方式
+      // 解决方法：排序通过seq数据存在的顺序，a组顺序，b组顺序，全体组顺表示是否存在于a组，b组。全体组都包含
+      //       （可能存在于a组，也可能存在于b组，可能a组b组都存在）
       
 
 
-      问题3：对序列号属性进行写操作
-        01 (type)[8] OPT_ID_PUT_SEQ
-        对数据进行拼装包含：前导码，type，pad，len，num，n条seq
-        新增：num+=1
-              n条seq增加一条
-        删除：num-=1
-              n条seq删除一条
-      问题4：设置游戏数据接口
-        02 (type)[8] OPT_ID_ADD_DATA
-        对数据进行拼装包含：前导码，type，pad，len，num，n条data
+      // 问题3：对序列号属性进行写操作
+      //   01 (type)[8] OPT_ID_PUT_SEQ
+      //   对数据进行拼装包含：前导码，type，pad，len，num，n条seq
+      //   新增：num+=1
+      //         n条seq增加一条
+      //   删除：num-=1
+      //         n条seq删除一条
+      // 问题4：设置游戏数据接口
+      //   02 (type)[8] OPT_ID_ADD_DATA
+      //   对数据进行拼装包含：前导码，type，pad，len，num，n条data
 
 
-      FF 00 FF 00 FF 00 FF 00 (前导码)[0]-[7]
-      00 (type)[8]
-      04 (pad)[9]
-      05 00 (len)[10][11]
-      00 04 (num)[12][13]
-      01 02 03 04 05 00 01 00 01 00 10 00 (SEQ0)[14]--[25]
-      01 02 03 04 05 00 02 00 03 08 00 00 (SEQ1)[26]--[38]
-      01 02 03 04 05 00 03 00 02 04 30 00 (SEQ2)[39]--[50]
-      01 02 03 04 05 00 04 00 00 0C 20 00 (SEQ3)[51]--[62]
+      // FF 00 FF 00 FF 00 FF 00 (前导码)[0]-[7]
+      // 00 (type)[8]
+      // 04 (pad)[9]
+      // 05 00 (len)[10][11]
+      // 00 04 (num)[12][13]
+      // 01 02 03 04 05 00 01 00 01 00 10 00 (SEQ0)[14]--[25]
+      // 01 02 03 04 05 00 02 00 03 08 00 00 (SEQ1)[26]--[38]
+      // 01 02 03 04 05 00 03 00 02 04 30 00 (SEQ2)[39]--[50]
+      // 01 02 03 04 05 00 04 00 00 0C 20 00 (SEQ3)[51]--[62]
 
 
-      SEQ0解析：
-      01 02 03 04 05 00 01 00 01 00 10 00 (SEQ0)[14]--[25]
-      01 02 03 04 05 00 01  (id)[0]-[6]
-      00 (isCurExist、isCurA、isCurB、isCurAll)[7]
-      01 00 (a组顺序)[8][9]
-      00 10 (b组顺序)[9][10]
-      10 00 (全体组顺)[10][11]
+      // SEQ0解析：
+      // 01 02 03 04 05 00 01 00 01 00 10 00 (SEQ0)[14]--[25]
+      // 01 02 03 04 05 00 01  (id)[0]-[6]
+      // 00 (isCurExist、isCurA、isCurB、isCurAll)[7]
+      // 01 00 (a组顺序)[8][9]
+      // 00 10 (b组顺序)[9][10]
+      // 10 00 (全体组顺)[10][11]
 
-      a组顺序：
-      01 00 (a组顺序)[8][9]
-      [8]==>>01==>>00 00 00 01 (16进制>>2进制)
-      [9]==>>00==>>00 00 00 00 (16进制>>2进制)
-      a组顺序===>>> 00 00 00 00 01
+      // a组顺序：
+      // 01 00 (a组顺序)[8][9]
+      // [8]==>>01==>>00 00 00 01 (16进制>>2进制)
+      // [9]==>>00==>>00 00 00 00 (16进制>>2进制)
+      // a组顺序===>>> 00 00 00 00 01
 
 
-      b组顺序：
-      10 10 (b组顺序)[9][10]
-      [9]==>>00==>>00 00 00 00 (16进制>>2进制)
-      [10]==>>10==>>00 01 00 00 (16进制>>2进制)
-      b组顺序===>>> 00 00 00 00 00
+      // b组顺序：
+      // 10 10 (b组顺序)[9][10]
+      // [9]==>>00==>>00 00 00 00 (16进制>>2进制)
+      // [10]==>>10==>>00 01 00 00 (16进制>>2进制)
+      // b组顺序===>>> 00 00 00 00 00
 
-      全体组顺序：
-      10 11 (全体组顺序)[10][11]
-      [10]==>>10==>>00 01 00 00  (16进制>>2进制)
-      [11]==>>00==>>00 00 00 00 (16进制>>2进制)
-      全体组顺序===>>> 00 00 00 00 00 01
+      // 全体组顺序：
+      // 10 11 (全体组顺序)[10][11]
+      // [10]==>>10==>>00 01 00 00  (16进制>>2进制)
+      // [11]==>>00==>>00 00 00 00 (16进制>>2进制)
+      // 全体组顺序===>>> 00 00 00 00 00 01
 
 
       
 
-      对序列号属性进行写操作
-      FF 00 FF 00 FF 00 FF 00 (前导码)[0]-[7]
-      01 (type)[8] OPT_ID_PUT_SEQ
-      00 (pad)[9]
-      00 00 (len)[10][11]
-      00 04 (num)[12][13]
-      01 02 03 04 05 00 01 00 01 00 10 00 (SEQ0)[14]--[25]
-      01 02 03 04 05 00 02 00 03 08 00 00 (SEQ1)[26]--[38]
-      01 02 03 04 05 00 03 00 02 04 30 00 (SEQ2)[39]--[50]
-      01 02 03 04 05 00 04 00 00 0C 20 00 (SEQ3)[51]--[62]
-
-
-
-      // FF00FF00FF00FF00//00//04//0500//0004//010203040500010001001000//01020304050002
-      // 02030405000300020430000102030405000400000C2000
-      // let _proto_ = res.__proto__
-      // console.log(`_proto_====>>>>$`)
-      // console.log(_proto_)
-      // console.log(`__defineGetter__======>>>>>${_proto_.__defineGetter__}`)
-      // console.log(_proto_.__defineGetter__)
-      // console.log(`__defineSetter__======>>>>>${_proto_.__defineSetter__}`)
-      // console.log(_proto_.__defineSetter__)
-      // console.log(`__lookupGetter__======>>>>>${_proto_.__lookupGetter__}`)
-      // console.log(_proto_.__lookupGetter__)
-      // console.log(`__lookupSetter__======>>>>>${_proto_.__lookupSetter__}`)
-      // console.log(_proto_.__lookupSetter__)
-      // console.log(`constructor======>>>>>${_proto_.constructor}`)
-      // console.log(_proto_.constructor)
-      // console.log(`hasOwnProperty======>>>>>${_proto_.hasOwnProperty}`)
-      // console.log(_proto_.hasOwnProperty)
-      // console.log(`isProtoTypeOf======>>>>>${_proto_.isProtoTypeOf}`)
-      // console.log(_proto_.isProtoTypeOf)
-      // console.log(`nv_constructor======>>>>>${_proto_.nv_constructor}`)
-      // console.log(_proto_.nv_constructor)
-      // console.log(`nv_toString======>>>>>${_proto_.nv_toString}`)
-      // console.log(_proto_.nv_toString)
-      // console.log(`propertyleEnumerable======>>>>>${_proto_.propertyleEnumerable}`)
-      // console.log(_proto_.propertyleEnumerable)
-      // console.log(`toLocaleString======>>>>>${_proto_.toLocaleString}`)
-      // console.log(_proto_.toLocaleString)
-      // console.log(`toString======>>>>>${_proto_.toString}`)
-      // console.log(_proto_.toString)
-      // console.log(`valueOf======>>>>>${_proto_.valueOf}`)
-      // console.log(_proto_.valueOf)
+      // 对序列号属性进行写操作
+      // FF 00 FF 00 FF 00 FF 00 (前导码)[0]-[7]
+      // 01 (type)[8] OPT_ID_PUT_SEQ
+      // 00 (pad)[9]
+      // 00 00 (len)[10][11]
+      // 00 04 (num)[12][13]
+      // 01 02 03 04 05 00 01 00 01 00 10 00 (SEQ0)[14]--[25]
+      // 01 02 03 04 05 00 02 00 03 08 00 00 (SEQ1)[26]--[38]
+      // 01 02 03 04 05 00 03 00 02 04 30 00 (SEQ2)[39]--[50]
+      // 01 02 03 04 05 00 04 00 00 0C 20 00 (SEQ3)[51]--[62]
       // that.setData({
       //   textLog: log0,
       // });

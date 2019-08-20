@@ -28,6 +28,11 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function(options) {
+    let codeValue = 'FF00FF00FF00FF000004050000040102030405000100010010000102030405000200030800000102030405000300020430000102030405000400000C2000'
+    // 解析从设备获取的值
+    let deviceDataNode = app.diviceDataAnalysis(codeValue)
+    console.log(deviceDataNode)
+
     console.log('000000')
     var that = this;
     console.log("用户信息", app.globalData.userInfo);
