@@ -200,40 +200,53 @@ App({
     }
     return dataNode
   },
-  // FF00FF00FF00FF0000040500000401020304050001
-  // FF00FF00FF00FF000004050000040102030405000100010010000102030405000200030800000102030405000300020430000102030405000400000C2000
+  // 反编译deviceDataNode数据,获取可下发设备的数据
   setDiviceDataAnalysis(deviceDataNode) {
     console.log(deviceDataNode)
+    // 初始化==>>默认值为前置码
     let codeValue = deviceDataNode.frontCode
+    // 文档要求:下发数据时type为01,len为00,pad为00
+    // 现在使用数据deviceDataNode中的原有值,产看反编译是否成功
     let len = deviceDataNode.len
     let pad = deviceDataNode.pad
+    // let len = ''
+    // let pad = ''
     let type = '00'
+    // type为类型
+    // 00 (type)[8] OPT_ID_GET_SEQ==>>GET方式，数据获取
+    // 01 (type)[8] OPT_ID_PUT_SEQ==>>PUT方式，数据修改
+    // 02 (type)[8] OPT_ID_ADD_DATA==>>ADD方式，数据新增
+    // 将len，pad，type加入到结果字符串中
     codeValue += type
     codeValue += pad
     codeValue += len
     let num = deviceDataNode.num + ''
+    // num ==>> seq数量, 使用padStart补全为4位的字符
     codeValue += num.padStart(4, '0')
     let seqListNode = deviceDataNode.seqListNode
     let seqListStr = ''
+    
+    // for (let i = 0; i < seqListNode.length; i++) {
     let i = 0
     for (i in seqListNode) {
+      // 从deviceDataNode.seqListNode中拿到seq数据列表,反编译成16进制的字符串
       seqListStr += seqListNode[i].id
-      // console.log(seqListNode[i].isCur)
       let seqStr = parseInt(seqListNode[i].isCur, 2).toString(16).padStart(2, '0')
-      // console.log(`-------${seqStr}`)
       seqListStr += seqStr
+      // 通过文档规则对数据进行拆分
       let group8 = seqListNode[i].groupA.substring(2, seqListNode[i].groupA.length)
-      let group9 = seqListNode[i].groupA.substring(0, 1) + seqListNode[i].groupB.substring(4, seqListNode[i].groupB.length)
-      let group10 = seqListNode[i].groupAll.substring(8, seqListNode[i].groupAll.length) + seqListNode[i].groupB.substring(0, 3)
-      let group11 = seqListNode[i].groupAll.substring(0, 7)
+      let group9 = seqListNode[i].groupB.substring(4, seqListNode[i].groupB.length) + seqListNode[i].groupA.substring(0, 2)
+      let group10 = seqListNode[i].groupAll.substring(8, seqListNode[i].groupAll.length) + seqListNode[i].groupB.substring(0, 4)
+      let group11 = seqListNode[i].groupAll.substring(0, 8)
+      // 2进制转16进制,用0补全两位
       group8 = parseInt(group8, 2).toString(16).padStart(2, '0')
       group9 = parseInt(group9, 2).toString(16).padStart(2, '0')
       group10 = parseInt(group10, 2).toString(16).padStart(2, '0')
       group11 = parseInt(group11, 2).toString(16).padStart(2, '0')
-      console.log(group8)
-      console.log(group9)
-      console.log(group10)
-      console.log(group11)
+      seqListStr += group8
+      seqListStr += group9
+      seqListStr += group10
+      seqListStr += group11
     }
     codeValue += seqListStr
     return codeValue
