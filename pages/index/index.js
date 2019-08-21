@@ -30,8 +30,14 @@ Page({
   onLoad: function(options) {
     let codeValue = 'FF00FF00FF00FF000004050000040102030405000100010010000102030405000200030800000102030405000300020430000102030405000400000C2000'
     // 解析从设备获取的值
-    let deviceDataNode = app.diviceDataAnalysis(codeValue)
-    console.log(deviceDataNode)
+    let deviceDataNode = app.getDiviceDataAnalysis(codeValue)
+    // console.log(deviceDataNode)
+    // 修改seq在A组中的顺序：把当前seq的groupA与目标位置的groupA呼唤位置即可
+    // 同理在B组中或者所有分组中操作相同
+    let setDataNode = app.setDiviceDataAnalysis(deviceDataNode)
+    console.log(setDataNode)
+
+
 
     console.log('000000')
     var that = this;

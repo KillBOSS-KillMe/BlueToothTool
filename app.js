@@ -116,7 +116,7 @@ App({
     sysinfo: null
   },
   // 解析从设备获取的值
-  diviceDataAnalysis(codeValue) {
+  getDiviceDataAnalysis(codeValue) {
     // frontCode ==>> 前导码
     // typeCod ==>> 请求类型(GET_SEQ=>0, PUT_SEQ=>1, ADD_DATA=>2)
     // pad ==>> pad
@@ -169,6 +169,7 @@ App({
       let groupAll10 = seqList[i][20] + seqList[i][21]
       let groupAll11 = seqList[i][22] + seqList[i][23]
       // 16进制==>>2进制==>>数据补全
+      isCur = parseInt(isCur, 16).toString(2).padStart(4, '0')
       groupA8 = parseInt(groupA8, 16).toString(2).padStart(8, '0')
       groupA9 = parseInt(groupA9, 16).toString(2).padStart(8, '0')
       groupB9 = parseInt(groupB9, 16).toString(2).padStart(8, '0')
@@ -188,12 +189,54 @@ App({
       dataNode.seqListNode[i] = {
         id: id,
         isCur: isCur,
+        isCurExist: isCur[0],
+        isCurA: isCur[1],
+        isCurB: isCur[2],
+        isCurAll: isCur[3],
         groupA: groupA,
         groupB: groupB,
         groupAll: groupAll
       }
     }
     return dataNode
+  },
+  // FF00FF00FF00FF0000040500000401020304050001
+  // FF00FF00FF00FF000004050000040102030405000100010010000102030405000200030800000102030405000300020430000102030405000400000C2000
+  setDiviceDataAnalysis(deviceDataNode) {
+    console.log(deviceDataNode)
+    let codeValue = deviceDataNode.frontCode
+    let len = deviceDataNode.len
+    let pad = deviceDataNode.pad
+    let type = '00'
+    codeValue += type
+    codeValue += pad
+    codeValue += len
+    let num = deviceDataNode.num + ''
+    codeValue += num.padStart(4, '0')
+    let seqListNode = deviceDataNode.seqListNode
+    let seqListStr = ''
+    let i = 0
+    for (i in seqListNode) {
+      seqListStr += seqListNode[i].id
+      // console.log(seqListNode[i].isCur)
+      let seqStr = parseInt(seqListNode[i].isCur, 2).toString(16).padStart(2, '0')
+      // console.log(`-------${seqStr}`)
+      seqListStr += seqStr
+      let group8 = seqListNode[i].groupA.substring(2, seqListNode[i].groupA.length)
+      let group9 = seqListNode[i].groupA.substring(0, 1) + seqListNode[i].groupB.substring(4, seqListNode[i].groupB.length)
+      let group10 = seqListNode[i].groupAll.substring(8, seqListNode[i].groupAll.length) + seqListNode[i].groupB.substring(0, 3)
+      let group11 = seqListNode[i].groupAll.substring(0, 7)
+      group8 = parseInt(group8, 2).toString(16).padStart(2, '0')
+      group9 = parseInt(group9, 2).toString(16).padStart(2, '0')
+      group10 = parseInt(group10, 2).toString(16).padStart(2, '0')
+      group11 = parseInt(group11, 2).toString(16).padStart(2, '0')
+      console.log(group8)
+      console.log(group9)
+      console.log(group10)
+      console.log(group11)
+    }
+    codeValue += seqListStr
+    return codeValue
   }
 
 
