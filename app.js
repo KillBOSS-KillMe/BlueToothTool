@@ -206,11 +206,11 @@ App({
     // 初始化==>>默认值为前置码
     let codeValue = deviceDataNode.frontCode
     // 文档要求:下发数据时type为01,len为00,pad为00
-    // 现在使用数据deviceDataNode中的原有值,产看反编译是否成功
+    // 现在使用数据deviceDataNode中的原有值,查看反编译是否成功
     let len = deviceDataNode.len
     let pad = deviceDataNode.pad
-    // let len = ''
-    // let pad = ''
+    // let len = '00'
+    // let pad = '00'
     let type = '00'
     // type为类型
     // 00 (type)[8] OPT_ID_GET_SEQ==>>GET方式，数据获取
